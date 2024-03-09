@@ -1,0 +1,37 @@
+Open complication on press
+--------------------------
+
+https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html
+
+- HR
+- Body Battery
+- Stress
+- Steps
+- Battery
+
+Settings
+--------
+
+Colors:
+
+- Background
+- Date
+- Hours
+- Minutes
+- Connection
+- HR
+- Body Battery
+- Steps
+- Stress
+- Temperature
+- Battery
+
+Menu2 for on-device Settings
+----------------------------
+
+https://forums.garmin.com/developer/connect-iq/f/discussion/277653/change-watch-face-setting-via-the-device
+https://forums.garmin.com/developer/connect-iq/f/discussion/334224/customize-menu-on-watchface-selection
+https://developer.garmin.com/connect-iq/api-docs/Toybox/WatchUi/Menu2.html
+https://forums.garmin.com/developer/connect-iq/f/discussion/264671/menu2-multiple-options-select-item
+https://forums.garmin.com/developer/connect-iq/f/discussion/334224/customize-menu-on-watchface-selection
+https://forums.garmin.com/developer/connect-iq/f/discussion/238950/an-app-for-sdk-3-2-and-3-1

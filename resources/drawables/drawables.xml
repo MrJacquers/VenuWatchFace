@@ -1,0 +1,9 @@
+<!--https://developer.garmin.com/connect-iq/core-topics/resources/-->
+<drawables>
+    <bitmap id="LauncherIcon" filename="launcher_icon.png" />
+    <bitmap id="HRIcon" filename="ecg_heart.svg">
+    <palette disableTransparency="false">
+            <color>AA0000</color>
+        </palette>
+    </bitmap>
+</drawables>

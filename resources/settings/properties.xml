@@ -1,0 +1,7 @@
+<properties>
+    <!-- https://developer.garmin.com/connect-iq/api-docs/Toybox/Graphics.html -->
+    <property id="BackgroundColor" type="number">0x000000</property>
+    <property id="HourColor" type="number">0x55AA55</property>
+    <property id="MinuteColor" type="number">0xAAAAAA</property>
+    <property id="UseMilitaryFormat" type="boolean">false</property>
+</properties>
