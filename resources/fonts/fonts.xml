@@ -1,4 +1,4 @@
 <fonts>
-    <font id="id_monofonto_outline" filename="monofonto_outline.fnt" antialias="true" filter="0123456789" />
-    <font id="id_robotomono36" filename="robotomono36.fnt" antialias="true" filter="" />    
+    <font id="id_monofonto_outline" filename="monofonto_outline.fnt" antialias="true" filter="0123456789:" />
+    <font id="id_teko_bold_outline" filename="teko_bold_outline.fnt" antialias="true" filter="0123456789:" />
 </fonts>
