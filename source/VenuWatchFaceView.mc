@@ -10,11 +10,11 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   var _devSize;
   var _devCenter;
   var _timeFont;
-  var _hidden = false;
   var _blanked = false;
   var _lowPwrMode = false;
 
   // TODO: put in settings
+  var _grid;
   var _hourColor;
   var _minuteColor;
   var _appAODEnabled = false;
@@ -24,14 +24,15 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   //var _curHr;
 
   function initialize() {
-    System.println("view initialize");
+    //System.println("view initialize");
     WatchFace.initialize();
+    loadSettings();
 
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/System/DeviceSettings.html
     /*var settings = System.getDeviceSettings();
     if (settings has :requiresBurnInProtection) {
       var canBurn = settings.requiresBurnInProtection;
-      System.println("canBurnIn:" + canBurn);
+      //System.println("canBurnIn:" + canBurn);
     }*/
 
     // https://developer.garmin.com/connect-iq/core-topics/complications/
@@ -44,10 +45,10 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
   // keeping as example
   /*function onComplicationChanged(id as Complications.Id) as Void {
-    System.println("onComplicationChanged");
+    //System.println("onComplicationChanged");
     if (id.equals(_hrId)) {
       _curHr = Complications.getComplication(id).value;
-      System.println(_curHr);
+      //System.println(_curHr);
     }
   }*/
 
@@ -57,22 +58,27 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
       _hourColor = Application.Properties.getValue("HourColor") as Number;
       _minuteColor = Application.Properties.getValue("MinuteColor") as Number;
     }
+
+    // Load settings from Storage.
+    var settings = new Settings();
+    _grid = settings.getValue("GridEnabled", false);
+    _appAODEnabled = settings.getValue("AODModeEnabled", false);
   }
 
   // Load your resources here
   function onLayout(dc as Dc) as Void {
-    System.println("onLayout");
+    //System.println("onLayout");
     _devSize = dc.getWidth();
     _devCenter = _devSize / 2;
-    _timeFont = WatchUi.loadResource(Rez.Fonts.id_teko_bold_outline);
+    _timeFont = WatchUi.loadResource(Rez.Fonts.id_monofonto_outline);
   }
 
   // Called when this View is brought to the foreground.
   // Restore the state of this View and prepare it to be shown.
   // This includes loading resources into memory.
   function onShow() as Void {
-    System.println("onShow");
-    _hidden = false;
+    //System.println("onShow");
+    //loadSettings();
     _lowPwrMode = false;
     /*if (_hrId != null) {
       Complications.subscribeToUpdates(_hrId);
@@ -83,20 +89,15 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   // Called every second in high power mode.
   // Called once a minute in low power mode.
   function onUpdate(dc as Dc) as Void {
-    System.print("onUpdate: ");
+    //System.print("onUpdate: ");
 
-    if (_hidden) {
-      System.println("hidden");
-      return;
-    }
-    
     if (_lowPwrMode) {
-      System.println("low power mode");
+      //System.println("low power mode");
       drawScreenSaver(dc);
       return;
     }
 
-    System.println("drawing");
+    //System.println("drawing");
 
     clearScreen(dc);
 
@@ -105,7 +106,9 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     //dc.drawLine(0, 312, 412, 104);
 
     // lines for positioning
-    //drawGrid(dc);
+    if (_grid) {
+      drawGrid(dc);
+    }
 
     //dc.setColor(Graphics.COLOR_YELLOW, 0);
     //dc.fillRoundedRectangle(118, 32, 182, 44, 5);
@@ -120,7 +123,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     // connection status
     dc.setColor(_hourColor, -1);
     var cs = System.getDeviceSettings().phoneConnected ? "B" : "";
-    dc.drawText(32, 210, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(30, 208, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // hour
     dc.setColor(_hourColor, -1);
@@ -132,7 +135,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
     // seconds
     dc.setColor(_hourColor, -1);
-    dc.drawText(376, 156, Graphics.FONT_TINY, dateInfo.sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
+    dc.drawText(378, 148, Graphics.FONT_TINY, dateInfo.sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
 
     // something
     //dc.setColor(Graphics.COLOR_DK_GRAY, -1);
@@ -199,15 +202,15 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
   function drawScreenSaver(dc as Dc) {
     if (_appAODEnabled == false) {
-      // The watch OS will blank the screen if system AOD is turned off, but this is safer, just in case.
-      if (_blanked == false) {
+      // The watch OS will blank the screen if system AOD is turned off.
+      /*if (_blanked == false) {
         clearScreen(dc);
         _blanked = true;
-      }
+      }*/
       return;
     }
 
-    System.println("drawScreenSaver");
+    //System.println("drawScreenSaver");
 
     clearScreen(dc);
     
@@ -252,7 +255,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
   /*private function getHeartRateComp() {
    if (_hrId != null && _curHr != null) {
-      System.println("hr from complication");
+      //System.println("hr from complication");
       return;
     }
     _curHr = "--";
@@ -317,14 +320,13 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   // Called when this View is removed from the screen. Save the state of this View here.
   // This includes freeing resources from memory.
   function onHide() as Void {
-    System.println("onHide");
-    _hidden = true;
+    //System.println("onHide");
     //Complications.unsubscribeFromAllUpdates();
   }
 
   // Terminate any active timers and prepare for slow updates (once a minute).
   function onEnterSleep() as Void {
-    System.println("onEnterSleep");
+    //System.println("onEnterSleep");
     //Complications.unsubscribeFromAllUpdates();
     _lowPwrMode = true;
     _blanked = false;
@@ -333,7 +335,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
   // The user has just looked at their watch. Timers and animations may be started here.
   function onExitSleep() as Void {
-    System.println("onExitSleep");
+    //System.println("onExitSleep");
     _lowPwrMode = false;
     //WatchUi.requestUpdate();
     /*if (_hrId != null) {
