@@ -8,9 +8,19 @@ class ODSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
   }
 
   function onSelect(item) {
+    var id = item.getId();
+
     if (item instanceof ToggleMenuItem) {
-        new Settings().setValue(item.getId(), item.isEnabled());
+        new Settings().setValue(id, item.isEnabled());
         return;
+    }
+
+    if (id.equals("bg")) {
+      var colorNames=["White","Lt Gray","Dk Gray","Black","Red","Dk Red","Orange","Yellow","Green","Dk Green","Blue","Dk Blue","Purple","Pink","TRANS"];
+      //MySettings.backgroundIdx=(MySettings.backgroundIdx+1)%14;
+      item.setSubLabel(colorNames[2]);
+      //MySettings.writeKey(MySettings.backgroundKey,MySettings.backgroundIdx);
+      //MySettings.background=MySettings.getColor(null,null,null,MySettings.backgroundIdx);
     }
   }
 

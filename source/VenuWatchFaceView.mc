@@ -163,18 +163,28 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     dc.drawText(_devCenter, 376, Graphics.FONT_TINY, getBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // circles
+    //dc.setPenWidth(1);
     //dc.setColor(Graphics.COLOR_DK_GRAY, 0);
     //dc.drawCircle(_devCenter,_devCenter,204);
 
     /*dc.setColor(_hourColor, -1);
-    var top=90;
+    var top = 90;
     var secs = top + (360 - (dateInfo.sec * 6));
-     if(secs > 360) {
+     if (secs > 360) {
       secs = secs - 360;
     }
+    dc.setPenWidth(4);
     dc.drawArc(_devCenter, _devCenter, 204, Graphics.ARC_CLOCKWISE , top, secs);*/
 
     //drawSecDot(dc, dateInfo.sec);
+    //drawSecDot2(dc, dateInfo.sec);
+
+    /*var sec = 0;
+    do {
+      //drawSecDot(dc, sec, _devCenter);
+      drawSecDot2(dc, sec, _devCenter);
+      sec += 5;
+    } while (sec < 60);*/
   }
 
   function clearScreen(dc as Dc) {
@@ -220,19 +230,32 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     var timeString = Lang.format("$1$:$2$", [time.hour.format("%02d"), time.min.format("%02d")]);
 
     dc.setColor(Graphics.COLOR_DK_GRAY, 0);
-    var angle = (time.min / 60.0) * Math.PI * 2;
-    var xh = radius * Math.sin(angle);
-    var yh = -radius * Math.cos(angle);
-    dc.drawText(xh + _devCenter, yh + _devCenter, Graphics.FONT_TINY, timeString, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    var rad = (time.min / 60.0) * Math.PI * 2;
+    var x = radius * Math.sin(rad) + 0.5;
+    var y = -radius * Math.cos(rad);
+    dc.drawText(x + _devCenter, y + _devCenter, Graphics.FONT_TINY, timeString, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
   }
 
   // https://forums.garmin.com/developer/connect-iq/f/discussion/1740/better-code-needed-for-hands-on-watchface/19026
-  private function drawSecDot(dc, sec) {
-    dc.setColor(_hourColor, -1);
+  private function drawSecDot(dc, sec, radius) {
     var angle = (sec / 60.0) * Math.PI * 2;
-    var xh = (_devCenter-5) * Math.sin(angle); // _devCenter=radius
-    var yh = -(_devCenter-5) * Math.cos(angle); // _devCenter=radius
-    dc.fillCircle(xh + _devCenter, yh + _devCenter, 4); // _devCenter=centerpoint
+    var x = Math.sin(angle) * radius + 0.5;
+    var y = Math.cos(angle) * -radius;
+
+    dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
+    //dc.fillCircle(x + _devCenter, y + _devCenter, 8);
+  }
+
+  // https://github.com/bombsimon/garmin-seaside
+  private function drawSecDot2(dc, sec, radius) {
+    //dc.setColor(Graphics.COLOR_WHITE, -1);
+    //var angle = Math.toRadians((sec * 6 + 270));
+    var angle = (sec * 6 + 270) * (Math.PI / 180);
+    var x = Math.cos(angle) * radius;
+    var y = Math.sin(angle) * radius;
+
+    dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
+    //dc.fillCircle(x + _devCenter, y + _devCenter, 8);
   }
 
   private function getDate(dateInfo) {
@@ -272,7 +295,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   private function getBodyBattery() {
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/SensorHistory.html
     if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory)) {
-      var history  = Toybox.SensorHistory.getBodyBatteryHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
+      var history = Toybox.SensorHistory.getBodyBatteryHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
       var sample = history.next();
       if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
         return sample.data.format("%02d") + "%";
