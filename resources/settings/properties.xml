@@ -1,7 +1,13 @@
 <properties>
-    <!-- https://developer.garmin.com/connect-iq/api-docs/Toybox/Graphics.html -->
-    <property id="BackgroundColor" type="number">0x000000</property>
-    <property id="HourColor" type="number">0x55AA55</property>
-    <property id="MinuteColor" type="number">0xAAAAAA</property>
-    <property id="UseMilitaryFormat" type="boolean">false</property>
+    <!-- Color Codes: https://developer.garmin.com/connect-iq/api-docs/Toybox/Graphics.html -->
+    <property id="DateColor" type="string">AAAAAA</property>
+    <property id="HRColor" type="string">FF0000</property>
+    <property id="ConnectColor" type="string">55AA55</property>
+    <property id="HourColor" type="string">55AA55</property>
+    <property id="MinuteColor" type="string">AAAAAA</property>
+    <property id="SecColor" type="string">55AA55</property>
+    <property id="BodyBattColor" type="string">AAAAAA</property>
+    <property id="StepsColor" type="string">AAAAAA</property>
+    <property id="TempColor" type="string">AAAAAA</property>
+    <property id="BattColor" type="number">0xAAAAAA</property>
 </properties>

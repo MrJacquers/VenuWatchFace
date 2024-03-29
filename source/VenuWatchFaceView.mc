@@ -12,13 +12,8 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   var _timeFont;
   var _blanked = false;
   var _lowPwrMode = false;
-
-  // TODO: put in settings
-  var _grid;
-  var _hourColor;
-  var _minuteColor;
-  var _appAODEnabled = false;
-
+  var _settings;
+  
   // if using complication to get hr
   //var _hrId;
   //var _curHr;
@@ -53,16 +48,10 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   }*/
 
   function loadSettings() {
-    // https://developer.garmin.com/connect-iq/core-topics/properties-and-app-settings/
-    if (Toybox.Application has :Properties) {
-      _hourColor = Application.Properties.getValue("HourColor") as Number;
-      _minuteColor = Application.Properties.getValue("MinuteColor") as Number;
+    if (_settings == null) {
+      _settings = new Settings();
     }
-
-    // Load settings from Storage.
-    var settings = new Settings();
-    _grid = settings.getValue("GridEnabled", false);
-    _appAODEnabled = settings.getValue("AODModeEnabled", false);
+    _settings.loadSettings();
   }
 
   // Load your resources here
@@ -106,7 +95,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     //dc.drawLine(0, 312, 412, 104);
 
     // lines for positioning
-    if (_grid) {
+    if (_settings.showGrid) {
       drawGrid(dc);
     }
 
@@ -117,49 +106,52 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     var dateInfo = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
 
     // date
-    dc.setColor(Graphics.COLOR_LT_GRAY, -1);
+    dc.setColor(_settings.dateColor, -1);
     dc.drawText(212, 52, Graphics.FONT_SMALL, getDate(dateInfo), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // connection status
-    dc.setColor(_hourColor, -1);
-    var cs = System.getDeviceSettings().phoneConnected ? "B" : "";
-    dc.drawText(30, 208, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // hour
-    dc.setColor(_hourColor, -1);
-    dc.drawText(200, 206, _timeFont, dateInfo.hour.format("%02d"), Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // minutes
-    dc.setColor(_minuteColor, -1);
-    dc.drawText(216, 206, _timeFont, dateInfo.min.format("%02d"), Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // seconds
-    dc.setColor(_hourColor, -1);
-    dc.drawText(378, 148, Graphics.FONT_TINY, dateInfo.sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
 
     // something
     //dc.setColor(Graphics.COLOR_DK_GRAY, -1);
     //dc.drawText(104, 108, Graphics.FONT_TINY, "xx", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
+    
     // heartrate
-    dc.setColor(Graphics.COLOR_RED, -1);
+    dc.setColor(_settings.hrColor, -1);
     dc.drawText(_devCenter, 108, Graphics.FONT_TINY, getHeartRateAI(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // something else
     //dc.setColor(Graphics.COLOR_DK_GRAY, -1);
     //dc.drawText(312, 108, Graphics.FONT_TINY, "yy", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
+    // connection status
+    dc.setColor(_settings.connectColor, -1);
+    var cs = System.getDeviceSettings().phoneConnected ? "B" : "";
+    dc.drawText(30, 208, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+    // hour
+    dc.setColor(_settings.hourColor, -1);
+    dc.drawText(200, 206, _timeFont, dateInfo.hour.format("%02d"), Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+    // minutes
+    dc.setColor(_settings.minuteColor, -1);
+    dc.drawText(216, 206, _timeFont, dateInfo.min.format("%02d"), Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+    // seconds
+    dc.setColor(_settings.secColor, -1);
+    dc.drawText(378, 148, Graphics.FONT_TINY, dateInfo.sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
+    
     // body battery
-    dc.setColor(Graphics.COLOR_LT_GRAY, -1);
+    dc.setColor(_settings.bodyBattColor, -1);
     dc.drawText(104, 312, Graphics.FONT_TINY, getBodyBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // steps
+    dc.setColor(_settings.stepsColor, -1);
     dc.drawText(_devCenter, 312, Graphics.FONT_TINY, getSteps(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // temperature
+    dc.setColor(_settings.tempColor, -1);
     dc.drawText(312, 312, Graphics.FONT_TINY, getTemperature(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // battery
+    dc.setColor(_settings.battColor, -1);
     dc.drawText(_devCenter, 376, Graphics.FONT_TINY, getBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // circles
@@ -211,7 +203,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   }
 
   function drawScreenSaver(dc as Dc) {
-    if (_appAODEnabled == false) {
+    if (_settings.appAODEnabled == false) {
       // The watch OS will blank the screen if system AOD is turned off.
       /*if (_blanked == false) {
         clearScreen(dc);
@@ -298,7 +290,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
       var history = Toybox.SensorHistory.getBodyBatteryHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
       var sample = history.next();
       if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
-        return sample.data.format("%02d") + "%";
+        return sample.data.format("%d") + "%";
       }
     }
     return "--";
@@ -310,7 +302,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
       var history  = Toybox.SensorHistory.getStressHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
       var sample = history.next();
       if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
-        return sample.data.format("%02d") + "%";
+        return sample.data.format("%d") + "%";
       }
     }
     return "--";
@@ -336,8 +328,8 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
   private function getBattery() {
     var battery = System.getSystemStats().battery;
-    return Lang.format("$1$%", [battery.format("%02d")]);
-    //return battery.format("%02d") + "%";
+    return Lang.format("$1$%", [battery.format("%d")]);
+    //return battery.format("%.2f") + "%";
   }  
 
   // Called when this View is removed from the screen. Save the state of this View here.
