@@ -1,10 +1,8 @@
-import Toybox.Application;
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.System;
 import Toybox.WatchUi;
 import Toybox.Time.Gregorian;
-//import Toybox.Complications;
 
 class VenuWatchFaceView extends WatchUi.WatchFace {  
   var _devSize;
@@ -13,44 +11,26 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   var _blanked = false;
   var _lowPwrMode = false;
   var _settings;
+  var _dataFields;
   
-  // if using complication to get hr
-  //var _hrId;
-  //var _curHr;
-
   function initialize() {
     //System.println("view initialize");
     WatchFace.initialize();
+    
+    _settings = new Settings();
     loadSettings();
+    
+    _dataFields = new DataFields();
 
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/System/DeviceSettings.html
     /*var settings = System.getDeviceSettings();
     if (settings has :requiresBurnInProtection) {
       var canBurn = settings.requiresBurnInProtection;
       //System.println("canBurnIn:" + canBurn);
-    }*/
-
-    // https://developer.garmin.com/connect-iq/core-topics/complications/
-    // https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html
-    /*if (Toybox has :Complications) {
-      Complications.registerComplicationChangeCallback(self.method(:onComplicationChanged));
-      _hrId = new Id(Complications.COMPLICATION_TYPE_HEART_RATE);
-    }*/
+    }*/    
   }
 
-  // keeping as example
-  /*function onComplicationChanged(id as Complications.Id) as Void {
-    //System.println("onComplicationChanged");
-    if (id.equals(_hrId)) {
-      _curHr = Complications.getComplication(id).value;
-      //System.println(_curHr);
-    }
-  }*/
-
   function loadSettings() {
-    if (_settings == null) {
-      _settings = new Settings();
-    }
     _settings.loadSettings();
   }
 
@@ -69,6 +49,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     //System.println("onShow");
     //loadSettings();
     _lowPwrMode = false;
+
     /*if (_hrId != null) {
       Complications.subscribeToUpdates(_hrId);
     }*/
@@ -107,7 +88,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
     // date
     dc.setColor(_settings.dateColor, -1);
-    dc.drawText(212, 52, Graphics.FONT_SMALL, getDate(dateInfo), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(212, 52, Graphics.FONT_SMALL, _dataFields.getDate(dateInfo), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // something
     //dc.setColor(Graphics.COLOR_DK_GRAY, -1);
@@ -115,7 +96,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     
     // heartrate
     dc.setColor(_settings.hrColor, -1);
-    dc.drawText(_devCenter, 108, Graphics.FONT_TINY, getHeartRateAI(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(_devCenter, 108, Graphics.FONT_TINY, _dataFields.getHeartRateAI(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // something else
     //dc.setColor(Graphics.COLOR_DK_GRAY, -1);
@@ -140,19 +121,19 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     
     // body battery
     dc.setColor(_settings.bodyBattColor, -1);
-    dc.drawText(104, 312, Graphics.FONT_TINY, getBodyBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(104, 312, Graphics.FONT_TINY, _dataFields.getBodyBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // steps
     dc.setColor(_settings.stepsColor, -1);
-    dc.drawText(_devCenter, 312, Graphics.FONT_TINY, getSteps(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(_devCenter, 312, Graphics.FONT_TINY, _dataFields.getSteps(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // temperature
     dc.setColor(_settings.tempColor, -1);
-    dc.drawText(312, 312, Graphics.FONT_TINY, getTemperature(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(312, 312, Graphics.FONT_TINY, _dataFields.getTemperature(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // battery
     dc.setColor(_settings.battColor, -1);
-    dc.drawText(_devCenter, 376, Graphics.FONT_TINY, getBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(_devCenter, 376, Graphics.FONT_TINY, _dataFields.getBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // circles
     //dc.setPenWidth(1);
@@ -179,13 +160,13 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     } while (sec < 60);*/
   }
 
-  function clearScreen(dc as Dc) {
+  private function clearScreen(dc as Dc) {
     dc.setColor(0, 0);
     dc.clear();
   }
 
   // for layout position debugging
-  function drawGrid(dc as Dc) {
+  private function drawGrid(dc as Dc) {
     var i = 0;
     var step = 13;
 
@@ -202,7 +183,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     } while (i < _devSize);
   }
 
-  function drawScreenSaver(dc as Dc) {
+  private function drawScreenSaver(dc as Dc) {
     if (_settings.appAODEnabled == false) {
       // The watch OS will blank the screen if system AOD is turned off.
       /*if (_blanked == false) {
@@ -249,88 +230,6 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
     //dc.fillCircle(x + _devCenter, y + _devCenter, 8);
   }
-
-  private function getDate(dateInfo) {
-    return Lang.format("$1$ $2$ $3$", [dateInfo.day_of_week, dateInfo.month, dateInfo.day]);
-  }
-
-  private function getTime(dateInfo) {
-    return Lang.format("$1$:$2$", [dateInfo.hour.format("%02d"), dateInfo.min.format("%02d")]);
-    //var clockTime = System.getClockTime();
-    //return Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-  }
-
-  private function getHeartRateAI() {
-    var hr = Activity.getActivityInfo().currentHeartRate;
-    if (hr != null && hr != 0 && hr != 255) {
-      return hr;
-    }
-    return "--";
-  }
-
-  /*private function getHeartRateComp() {
-   if (_hrId != null && _curHr != null) {
-      //System.println("hr from complication");
-      return;
-    }
-    _curHr = "--";
-  }*/
-
-  private function getHeartRateHist() {
-    var sample = ActivityMonitor.getHeartRateHistory(1, true).next();
-    if (sample != null && sample.heartRate != null) {
-      return "[" + sample.heartRate + "]";
-    }
-    return "--";
-  }
-  
-  private function getBodyBattery() {
-    // https://developer.garmin.com/connect-iq/api-docs/Toybox/SensorHistory.html
-    if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory)) {
-      var history = Toybox.SensorHistory.getBodyBatteryHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
-      var sample = history.next();
-      if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
-        return sample.data.format("%d") + "%";
-      }
-    }
-    return "--";
-  }
-
-  private function getStress() {
-    // https://developer.garmin.com/connect-iq/api-docs/Toybox/SensorHistory.html
-    if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getStressHistory)) {
-      var history  = Toybox.SensorHistory.getStressHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
-      var sample = history.next();
-      if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
-        return sample.data.format("%d") + "%";
-      }
-    }
-    return "--";
-  }
-
-  private function getSteps() {
-    var info = ActivityMonitor.getInfo();
-    return info.steps;
-  }
-
-  private function getTemperature() {    
-    // Check device for SensorHistory compatibility
-    if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getTemperatureHistory)) {
-        // Set up the method with parameters
-       var iterator = Toybox.SensorHistory.getTemperatureHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
-       var sample = iterator.next();
-       if (sample != null && sample.data != null) {
-        return sample.data.format("%d") + "°";
-       }
-    }
-    return "--";
-  }
-
-  private function getBattery() {
-    var battery = System.getSystemStats().battery;
-    return Lang.format("$1$%", [battery.format("%d")]);
-    //return battery.format("%.2f") + "%";
-  }  
 
   // Called when this View is removed from the screen. Save the state of this View here.
   // This includes freeing resources from memory.

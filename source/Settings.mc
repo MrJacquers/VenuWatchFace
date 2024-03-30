@@ -29,7 +29,7 @@ class Settings {
             bodyBattColor = Application.Properties.getValue("BodyBattColor").toNumberWithBase(16);
             stepsColor = Application.Properties.getValue("StepsColor").toNumberWithBase(16);
             tempColor = Application.Properties.getValue("TempColor").toNumberWithBase(16);
-            battColor = Application.Properties.getValue("BattColor").toNumber();
+            battColor = Application.Properties.getValue("BattColor").toNumberWithBase(16);
         }
 
         // On-device settings, accessible via select watch face edit menu.

@@ -1,5 +1,8 @@
 <!--For use via Connect IQ-->
 <settings>
+    <setting propertyKey="@Properties.AppVersion" title="@Strings.AppVersion">
+        <settingConfig type="alphaNumeric" readonly="true" />
+    </setting>
     <setting propertyKey="@Properties.DateColor" title="@Strings.DateColorTitle">
         <settingConfig type="alphaNumeric" />
     </setting>
@@ -28,6 +31,6 @@
         <settingConfig type="alphaNumeric" />
     </setting>
     <setting propertyKey="@Properties.BattColor" title="@Strings.BattColorTitle">
-        <settingConfig type="numeric" />
+        <settingConfig type="alphaNumeric" />
     </setting>
 </settings>

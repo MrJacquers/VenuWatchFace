@@ -1,3 +1,8 @@
+DataFields
+----------
+
+- Stress + option to select?
+
 Open complication on press
 --------------------------
 
@@ -14,17 +19,9 @@ Settings
 
 Colors:
 
-- Background
-- Date
-- Hours
-- Minutes
-- Connection
-- HR
-- Body Battery
-- Steps
-- Stress
-- Temperature
-- Battery
+- Background?
+- HR Zones
+- Battery Zones
 
 Menu2 for on-device Settings
 ----------------------------
