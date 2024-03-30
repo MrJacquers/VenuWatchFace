@@ -1,6 +1,6 @@
-//import Toybox.Complications;
 import Toybox.Lang;
 import Toybox.Time.Gregorian;
+//import Toybox.Complications;
 
 class DataFields {
     // if using complication to get hr
@@ -14,7 +14,6 @@ class DataFields {
         _hrId = new Id(Complications.COMPLICATION_TYPE_HEART_RATE);
     }*/
 
-    // keeping as example
     /*function onComplicationChanged(id as Complications.Id) as Void {
         //System.println("onComplicationChanged");
         if (id.equals(_hrId)) {
@@ -59,10 +58,10 @@ class DataFields {
     
     function getBodyBattery() {
         // https://developer.garmin.com/connect-iq/api-docs/Toybox/SensorHistory.html
-        if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory)) {
-            var history = Toybox.SensorHistory.getBodyBatteryHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
+        if ((Toybox has :SensorHistory) && (SensorHistory has :getBodyBatteryHistory)) {
+            var history = SensorHistory.getBodyBatteryHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST });
             var sample = history.next();
-            if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
+            if (sample != null && sample.data != null && sample.data >= 0 && sample.data <= 100) {
                 return sample.data.format("%d") + "%";
             }
         }
@@ -70,11 +69,10 @@ class DataFields {
     }
 
     function getStress() {
-        // https://developer.garmin.com/connect-iq/api-docs/Toybox/SensorHistory.html
-        if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getStressHistory)) {
-            var history  = Toybox.SensorHistory.getStressHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
+        if ((Toybox has :SensorHistory) && (SensorHistory has :getStressHistory)) {
+            var history  = SensorHistory.getStressHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST });
             var sample = history.next();
-            if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
+            if (sample != null && sample.data != null && sample.data >= 0 && sample.data <= 100) {
                 return sample.data.format("%d") + "%";
             }
         }
@@ -87,10 +85,8 @@ class DataFields {
     }
 
     function getTemperature() {    
-        // Check device for SensorHistory compatibility
-        if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getTemperatureHistory)) {
-            // Set up the method with parameters
-            var iterator = Toybox.SensorHistory.getTemperatureHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
+        if ((Toybox has :SensorHistory) && (SensorHistory has :getTemperatureHistory)) {
+            var iterator = SensorHistory.getTemperatureHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST });
             var sample = iterator.next();
             if (sample != null && sample.data != null) {
                 return sample.data.format("%d") + "°";
