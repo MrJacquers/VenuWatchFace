@@ -10,8 +10,8 @@ class DataFields {
     // https://developer.garmin.com/connect-iq/core-topics/complications/
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html
     /*if (Toybox has :Complications) {
-      Complications.registerComplicationChangeCallback(self.method(:onComplicationChanged));
-      _hrId = new Id(Complications.COMPLICATION_TYPE_HEART_RATE);
+        Complications.registerComplicationChangeCallback(self.method(:onComplicationChanged));
+        _hrId = new Id(Complications.COMPLICATION_TYPE_HEART_RATE);
     }*/
 
     // keeping as example
@@ -36,15 +36,15 @@ class DataFields {
     function getHeartRateAI() {
         var hr = Activity.getActivityInfo().currentHeartRate;
         if (hr != null && hr != 0 && hr != 255) {
-        return hr;
+            return hr;
         }
         return "--";
     }
 
     /*function getHeartRateComp() {
-    if (_hrId != null && _curHr != null) {
-        //System.println("hr from complication");
-        return;
+        if (_hrId != null && _curHr != null) {
+            //System.println("hr from complication");
+            return;
         }
         _curHr = "--";
     }*/
@@ -52,7 +52,7 @@ class DataFields {
     function getHeartRateHist() {
         var sample = ActivityMonitor.getHeartRateHistory(1, true).next();
         if (sample != null && sample.heartRate != null) {
-        return "[" + sample.heartRate + "]";
+            return "[" + sample.heartRate + "]";
         }
         return "--";
     }
@@ -60,11 +60,11 @@ class DataFields {
     function getBodyBattery() {
         // https://developer.garmin.com/connect-iq/api-docs/Toybox/SensorHistory.html
         if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory)) {
-        var history = Toybox.SensorHistory.getBodyBatteryHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
-        var sample = history.next();
-        if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
-            return sample.data.format("%d") + "%";
-        }
+            var history = Toybox.SensorHistory.getBodyBatteryHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
+            var sample = history.next();
+            if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
+                return sample.data.format("%d") + "%";
+            }
         }
         return "--";
     }
@@ -72,36 +72,35 @@ class DataFields {
     function getStress() {
         // https://developer.garmin.com/connect-iq/api-docs/Toybox/SensorHistory.html
         if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getStressHistory)) {
-        var history  = Toybox.SensorHistory.getStressHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
-        var sample = history.next();
-        if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
-            return sample.data.format("%d") + "%";
-        }
+            var history  = Toybox.SensorHistory.getStressHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
+            var sample = history.next();
+            if (sample != null && sample.data != null && sample.data >=0 && sample.data <= 100) {
+                return sample.data.format("%d") + "%";
+            }
         }
         return "--";
     }
 
     function getSteps() {
-        var info = ActivityMonitor.getInfo();
-        return info.steps;
+        // https://developer.garmin.com/connect-iq/api-docs/Toybox/ActivityMonitor/Info.html
+        return ActivityMonitor.getInfo().steps;
     }
 
     function getTemperature() {    
         // Check device for SensorHistory compatibility
         if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getTemperatureHistory)) {
             // Set up the method with parameters
-        var iterator = Toybox.SensorHistory.getTemperatureHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
-        var sample = iterator.next();
-        if (sample != null && sample.data != null) {
-            return sample.data.format("%d") + "°";
-        }
+            var iterator = Toybox.SensorHistory.getTemperatureHistory({:period=>1,:order=>Toybox.SensorHistory.ORDER_NEWEST_FIRST});
+            var sample = iterator.next();
+            if (sample != null && sample.data != null) {
+                return sample.data.format("%d") + "°";
+            }
         }
         return "--";
     }
 
     function getBattery() {
-        var battery = System.getSystemStats().battery;
-        return Lang.format("$1$%", [battery.format("%d")]);
+        return Lang.format("$1$%", [System.getSystemStats().battery.format("%d")]);
         //return battery.format("%.2f") + "%";
     }
 }

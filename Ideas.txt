@@ -20,7 +20,7 @@ Settings
 Colors:
 
 - Background?
-- HR Zones
+- HR Zones https://developer.garmin.com/connect-iq/core-topics/quantifying-the-user/
 - Battery Zones
 
 Menu2 for on-device Settings
