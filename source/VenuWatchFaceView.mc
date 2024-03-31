@@ -119,9 +119,9 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     dc.setColor(_settings.secColor, -1);
     dc.drawText(378, 148, Graphics.FONT_TINY, dateInfo.sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
     
-    // body battery
+    // stress
     dc.setColor(_settings.bodyBattColor, -1);
-    dc.drawText(104, 312, Graphics.FONT_TINY, _dataFields.getBodyBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(104, 312, Graphics.FONT_TINY, _dataFields.getStress(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // steps
     dc.setColor(_settings.stepsColor, -1);
@@ -134,6 +134,8 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     // battery
     dc.setColor(_settings.battColor, -1);
     dc.drawText(_devCenter, 376, Graphics.FONT_TINY, _dataFields.getBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+    //_dataFields.drawBoxes(dc);
 
     // circles
     //dc.setPenWidth(1);

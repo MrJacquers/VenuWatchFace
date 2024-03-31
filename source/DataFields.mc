@@ -1,3 +1,4 @@
+import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Time.Gregorian;
 //import Toybox.Complications;
@@ -98,5 +99,17 @@ class DataFields {
     function getBattery() {
         return Lang.format("$1$%", [System.getSystemStats().battery.format("%d")]);
         //return battery.format("%.2f") + "%";
+    }
+
+    function drawBoxes(dc) {
+        var width = dc.getWidth();
+        var devCenter = width / 2;
+        dc.setColor(Graphics.COLOR_ORANGE, -1);
+
+        // df 01
+        dc.drawRectangle(devCenter - 26, 90, 52, 40);
+
+        //
+        dc.drawRectangle(70, 294, 70, 40);
     }
 }
