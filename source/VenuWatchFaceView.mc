@@ -23,10 +23,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     _dataFields = new DataFields();
     _dataFields.registerComplications();
     _dataFields.subscribeStress();
-
-    if (_settings.battLogEnabled) {
-      _dataFields.subscribeBattery();
-    }
+    _dataFields.battLogEnabled = _settings.battLogEnabled;
 
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/System/DeviceSettings.html
     /*var settings = System.getDeviceSettings();
@@ -65,7 +62,10 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
     if (_lowPwrMode) {
       //System.println("low power mode");
-      drawScreenSaver(dc);
+      //drawScreenSaver(dc);
+      if (_settings.battLogEnabled) {
+        _dataFields.getBattery();
+      }
       return;
     }
 
@@ -238,13 +238,11 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   // This includes freeing resources from memory.
   function onHide() as Void {
     //System.println("onHide");
-    //Complications.unsubscribeFromAllUpdates();
   }
 
   // Terminate any active timers and prepare for slow updates (once a minute).
   function onEnterSleep() as Void {
     //System.println("onEnterSleep");
-    //Complications.unsubscribeFromAllUpdates();
     _lowPwrMode = true;
     _dataFields.unsubscribeStress();
     //_blanked = false;
@@ -257,9 +255,6 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     _lowPwrMode = false;
     _dataFields.subscribeStress();
     //WatchUi.requestUpdate();
-    /*if (_hrId != null) {
-      Complications.subscribeToUpdates(_hrId);
-    }*/
   }
 }
 

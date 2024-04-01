@@ -4,9 +4,10 @@ import Toybox.Time.Gregorian;
 import Toybox.Complications;
 
 class DataFields {
-    private var _battCompId;
-    private var _stressCompId;
+    var battLogEnabled = false;
+    private var _currBattery;
     private var _currStress;
+    private var _stressCompId;
 
     // https://developer.garmin.com/connect-iq/core-topics/complications/
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html
@@ -14,14 +15,8 @@ class DataFields {
         if (Toybox has :Complications) {
             //System.println("registering complications");
             Complications.registerComplicationChangeCallback(self.method(:onComplicationChanged));
-
-            _battCompId = new Complications.Id(Complications.COMPLICATION_TYPE_BATTERY);
             _stressCompId = new Complications.Id(Complications.COMPLICATION_TYPE_STRESS);
         }
-    }
-
-    function subscribeBattery() {
-        Complications.subscribeToUpdates(_battCompId);
     }
 
     function subscribeStress() {
@@ -30,20 +25,15 @@ class DataFields {
 
     function unsubscribeStress() {
         _currStress = null;
-        Complications.subscribeToUpdates(_stressCompId);
+        Complications.unsubscribeFromUpdates(_stressCompId);
     }
 
     function onComplicationChanged(id as Complications.Id) as Void {
         //System.println("onComplicationChanged");
         var comp = Complications.getComplication(id);
 
-        if (id.equals(_battCompId)) {
-            var time = System.getClockTime();
-            System.println(Lang.format("Battery $1$:$2$:$3$ = $4$", [time.hour.format("%02d"), time.min.format("%02d"), time.sec.format("%02d"), comp.value]));
-            return;
-        }
-
-        if (id.equals(_stressCompId)) {
+        if (id == _stressCompId) {
+            //System.println("stress updated: " + comp.value);
             _currStress = comp.value;
             return;
         }
@@ -123,7 +113,16 @@ class DataFields {
     }
 
     function getBattery() {
-        return Lang.format("$1$%", [System.getSystemStats().battery.format("%d")]);
+        //System.println("getBattery");
+        var batt = System.getSystemStats().battery;
+        if (batt != _currBattery) {
+            _currBattery = batt;
+            if (battLogEnabled) {
+                var time = System.getClockTime();
+                System.println(Lang.format("Battery,$1$:$2$:$3$,$4$", [time.hour.format("%02d"), time.min.format("%02d"), time.sec.format("%02d"), _currBattery]));
+            }
+        }
+        return Lang.format("$1$%", [_currBattery.format("%d")]);
         //return battery.format("%.2f") + "%";
     }
 
