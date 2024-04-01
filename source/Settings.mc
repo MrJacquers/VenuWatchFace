@@ -9,12 +9,14 @@ class Settings {
     var minuteColor;
     var secColor;
     var bodyBattColor;
+    var stressColor;
     var stepsColor;
     var tempColor;
     var battColor; // TODO: battery % colors
 
     var showGrid;
     var appAODEnabled = false;
+    var battLogEnabled = false;
 
     function loadSettings() {
         // https://developer.garmin.com/connect-iq/core-topics/properties-and-app-settings/
@@ -27,6 +29,7 @@ class Settings {
             minuteColor = Application.Properties.getValue("MinuteColor").toNumberWithBase(16);
             secColor = Application.Properties.getValue("SecColor").toNumberWithBase(16);
             bodyBattColor = Application.Properties.getValue("BodyBattColor").toNumberWithBase(16);
+            stressColor = Application.Properties.getValue("StressColor").toNumberWithBase(16);
             stepsColor = Application.Properties.getValue("StepsColor").toNumberWithBase(16);
             tempColor = Application.Properties.getValue("TempColor").toNumberWithBase(16);
             battColor = Application.Properties.getValue("BattColor").toNumberWithBase(16);
@@ -36,6 +39,7 @@ class Settings {
         if (Toybox.Application has :Storage) {
             showGrid = getValue("GridEnabled", false);
             appAODEnabled = getValue("AODModeEnabled", false);
+            battLogEnabled = getValue("BattLogEnabled", false);
         }
     }
 

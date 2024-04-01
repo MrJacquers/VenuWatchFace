@@ -1,53 +1,70 @@
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Time.Gregorian;
-//import Toybox.Complications;
+import Toybox.Complications;
 
 class DataFields {
-    // if using complication to get hr
-    //var _hrId;
-    //var _curHr;
+    private var _battCompId;
+    private var _stressCompId;
+    private var _currStress;
 
     // https://developer.garmin.com/connect-iq/core-topics/complications/
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html
-    /*if (Toybox has :Complications) {
-        Complications.registerComplicationChangeCallback(self.method(:onComplicationChanged));
-        _hrId = new Id(Complications.COMPLICATION_TYPE_HEART_RATE);
-    }*/
+    function registerComplications() {
+        if (Toybox has :Complications) {
+            //System.println("registering complications");
+            Complications.registerComplicationChangeCallback(self.method(:onComplicationChanged));
 
-    /*function onComplicationChanged(id as Complications.Id) as Void {
-        //System.println("onComplicationChanged");
-        if (id.equals(_hrId)) {
-            _curHr = Complications.getComplication(id).value;
-            //System.println(_curHr);
+            _battCompId = new Complications.Id(Complications.COMPLICATION_TYPE_BATTERY);
+            _stressCompId = new Complications.Id(Complications.COMPLICATION_TYPE_STRESS);
         }
-    }*/
+    }
+
+    function subscribeBattery() {
+        Complications.subscribeToUpdates(_battCompId);
+    }
+
+    function subscribeStress() {
+        Complications.subscribeToUpdates(_stressCompId);
+    }
+
+    function unsubscribeStress() {
+        _currStress = null;
+        Complications.subscribeToUpdates(_stressCompId);
+    }
+
+    function onComplicationChanged(id as Complications.Id) as Void {
+        //System.println("onComplicationChanged");
+        var comp = Complications.getComplication(id);
+
+        if (id.equals(_battCompId)) {
+            var time = System.getClockTime();
+            System.println(Lang.format("Battery $1$:$2$:$3$ = $4$", [time.hour.format("%02d"), time.min.format("%02d"), time.sec.format("%02d"), comp.value]));
+            return;
+        }
+
+        if (id.equals(_stressCompId)) {
+            _currStress = comp.value;
+            return;
+        }
+    }
 
     function getDate(dateInfo as Gregorian.Info) {
         return Lang.format("$1$ $2$ $3$", [dateInfo.day_of_week, dateInfo.month, dateInfo.day]);
     }
 
-    function getTime(dateInfo as Gregorian.Info) {
-        return Lang.format("$1$:$2$", [dateInfo.hour.format("%02d"), dateInfo.min.format("%02d")]);
-        //var clockTime = System.getClockTime();
-        //return Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
+    function getTime() {
+        var time = System.getClockTime();
+        return Lang.format("$1$:$2$", [time.hour.format("%02d"), time.min.format("%02d")]);
     }
 
-    function getHeartRateAI() {
+    function getHeartRate() {
         var hr = Activity.getActivityInfo().currentHeartRate;
         if (hr != null && hr != 0 && hr != 255) {
             return hr;
         }
         return "--";
     }
-
-    /*function getHeartRateComp() {
-        if (_hrId != null && _curHr != null) {
-            //System.println("hr from complication");
-            return;
-        }
-        _curHr = "--";
-    }*/
 
     function getHeartRateHist() {
         var sample = ActivityMonitor.getHeartRateHistory(1, true).next();
@@ -70,13 +87,22 @@ class DataFields {
     }
 
     function getStress() {
-        if ((Toybox has :SensorHistory) && (SensorHistory has :getStressHistory)) {
-            var history  = SensorHistory.getStressHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST });
-            var sample = history.next();
-            if (sample != null && sample.data != null && sample.data >= 0 && sample.data <= 100) {
-                return sample.data.format("%d") + "%";
-            }
+        if (_currStress != null) {
+            return _currStress + "%";
         }
+
+        if ((Toybox has :SensorHistory) && (SensorHistory has :getStressHistory)) {
+            //var history = SensorHistory.getStressHistory({});
+            var history = SensorHistory.getStressHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST });
+            var sample = history.next();
+            if (sample == null) {
+                return "n/a";
+            }
+            //if (sample != null && sample.data >= 0 && sample.data <= 100) {
+            return "[" + sample.data.format("%d") + "%" + "]";
+            //}
+        }
+
         return "--";
     }
 

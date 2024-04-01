@@ -7,7 +7,8 @@
     <string id="HourColorTitle">Hour Color</string>
     <string id="MinuteColorTitle">Minute Color</string>
     <string id="SecColorTitle">Seconds Color</string>
-    <string id="BodyBatColorTitle">Body Battery Color</string>
+    <string id="BodyBattColorTitle">Body Battery Color</string>
+    <string id="StressColorTitle">Stress Score Color</string>
     <string id="StepsColorTitle">Steps Color</string>
     <string id="TempColorTitle">Temperature Color</string>
     <string id="BattColorTitle">Battery Color</string>

@@ -10,8 +10,8 @@ class WatchDelegate extends WatchFaceDelegate {
   public function onPress(clickEvent) {
     var coords = clickEvent.getCoordinates();
     var x = coords[0];
-    var y = coords[1]; 
-    System.println("onPress x:" + x + ",y:" + y);
+    var y = coords[1];
+    //System.println("onPress x:" + x + ",y:" + y);
 
     // dc.drawRectangle(devCenter - 26, 90, 52, 40);
     if (x >= 182 && y >= 90 && x <= 234 && y <= 130) {

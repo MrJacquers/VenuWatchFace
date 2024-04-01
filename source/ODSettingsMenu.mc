@@ -5,12 +5,12 @@ import Toybox.WatchUi;
 class ODSettingsMenu extends WatchUi.Menu2 {
   function initialize() {
     Menu2.initialize(null);
-
     Menu2.setTitle("Settings");
 
-    var settings = new Settings();    
-    Menu2.addItem(new WatchUi.ToggleMenuItem("AOD Mode", null, "AODModeEnabled", settings.getValue("AODModeEnabled", false), null));
-    Menu2.addItem(new WatchUi.ToggleMenuItem("Show Grid", null, "GridEnabled", settings.getValue("GridEnabled", false), null));
+    var settings = new Settings();
+    Menu2.addItem(new WatchUi.ToggleMenuItem("AOD Mode", "Simple AOD Display", "AODModeEnabled", settings.getValue("AODModeEnabled", false), null));
+    Menu2.addItem(new WatchUi.ToggleMenuItem("Show Grid", "Show Grid", "GridEnabled", settings.getValue("GridEnabled", false), null));
+    Menu2.addItem(new WatchUi.ToggleMenuItem("Batt Log", "Log Battery Level", "BattLogEnabled", settings.getValue("BattLogEnabled", false), null));
 
     // https://forums.garmin.com/developer/connect-iq/f/discussion/264671/menu2-multiple-options-select-item
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/WatchUi/CustomMenu.html

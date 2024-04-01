@@ -5,29 +5,35 @@ import Toybox.WatchUi;
 import Toybox.Time.Gregorian;
 
 class VenuWatchFaceView extends WatchUi.WatchFace {  
-  var _devSize;
-  var _devCenter;
-  var _timeFont;
-  var _blanked = false;
-  var _lowPwrMode = false;
-  var _settings;
-  var _dataFields;
+  private var _devSize;
+  private var _devCenter;
+  private var _timeFont;
+  //private var _blanked = false;
+  private var _lowPwrMode = false;
+  private var _settings;
+  private var _dataFields;
   
   function initialize() {
-    //System.println("view initialize");
+    System.println("view initialize");
     WatchFace.initialize();
     
     _settings = new Settings();
     loadSettings();
     
     _dataFields = new DataFields();
+    _dataFields.registerComplications();
+    _dataFields.subscribeStress();
+
+    if (_settings.battLogEnabled) {
+      _dataFields.subscribeBattery();
+    }
 
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/System/DeviceSettings.html
     /*var settings = System.getDeviceSettings();
     if (settings has :requiresBurnInProtection) {
       var canBurn = settings.requiresBurnInProtection;
       //System.println("canBurnIn:" + canBurn);
-    }*/    
+    }*/
   }
 
   function loadSettings() {
@@ -47,12 +53,8 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   // This includes loading resources into memory.
   function onShow() as Void {
     //System.println("onShow");
-    //loadSettings();
+    //_settings.loadSettings();
     _lowPwrMode = false;
-
-    /*if (_hrId != null) {
-      Complications.subscribeToUpdates(_hrId);
-    }*/
   }
 
   // Updates the view.
@@ -68,7 +70,6 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     }
 
     //System.println("drawing");
-
     clearScreen(dc);
 
     //dc.setColor(Graphics.COLOR_BLUE, 0);
@@ -96,7 +97,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     
     // heartrate
     dc.setColor(_settings.hrColor, -1);
-    dc.drawText(_devCenter, 108, Graphics.FONT_TINY, _dataFields.getHeartRateAI(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(_devCenter, 108, Graphics.FONT_TINY, _dataFields.getHeartRate(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // something else
     //dc.setColor(Graphics.COLOR_DK_GRAY, -1);
@@ -120,7 +121,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     dc.drawText(378, 148, Graphics.FONT_TINY, dateInfo.sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
     
     // stress
-    dc.setColor(_settings.bodyBattColor, -1);
+    dc.setColor(_settings.stressColor, -1);
     dc.drawText(104, 312, Graphics.FONT_TINY, _dataFields.getStress(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
     // steps
@@ -245,7 +246,8 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     //System.println("onEnterSleep");
     //Complications.unsubscribeFromAllUpdates();
     _lowPwrMode = true;
-    _blanked = false;
+    _dataFields.unsubscribeStress();
+    //_blanked = false;
     //WatchUi.requestUpdate();
   }
 
@@ -253,6 +255,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   function onExitSleep() as Void {
     //System.println("onExitSleep");
     _lowPwrMode = false;
+    _dataFields.subscribeStress();
     //WatchUi.requestUpdate();
     /*if (_hrId != null) {
       Complications.subscribeToUpdates(_hrId);

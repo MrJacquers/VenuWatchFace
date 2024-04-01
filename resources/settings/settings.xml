@@ -21,7 +21,10 @@
     <setting propertyKey="@Properties.SecColor" title="@Strings.SecColorTitle">
         <settingConfig type="alphaNumeric" />
     </setting>
-    <setting propertyKey="@Properties.BodyBattColor" title="@Strings.BodyBatColorTitle">
+    <setting propertyKey="@Properties.BodyBattColor" title="@Strings.BodyBattColorTitle">
+        <settingConfig type="alphaNumeric" />
+    </setting>
+    <setting propertyKey="@Properties.StressColor" title="@Strings.StressColorTitle">
         <settingConfig type="alphaNumeric" />
     </setting>
     <setting propertyKey="@Properties.StepsColor" title="@Strings.StepsColorTitle">
