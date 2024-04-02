@@ -9,7 +9,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   private var _devCenter;
   private var _timeFont;
   //private var _blanked = false;
-  private var _lowPwrMode = false;
+  private var _lowPwrMode;
   private var _settings;
   private var _dataFields;
   
@@ -22,7 +22,6 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     
     _dataFields = new DataFields();
     _dataFields.registerComplications();
-    _dataFields.subscribeStress();
     _dataFields.battLogEnabled = _settings.battLogEnabled;
 
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/System/DeviceSettings.html
@@ -49,9 +48,10 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   // Restore the state of this View and prepare it to be shown.
   // This includes loading resources into memory.
   function onShow() as Void {
-    //System.println("onShow");
+    System.println("onShow");
     //_settings.loadSettings();
     _lowPwrMode = false;
+    _dataFields.subscribeStress();
   }
 
   // Updates the view.
@@ -197,7 +197,6 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     }
 
     //System.println("drawScreenSaver");
-
     clearScreen(dc);
     
     //drawSecDot(dc, time.sec);
@@ -237,12 +236,14 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   // Called when this View is removed from the screen. Save the state of this View here.
   // This includes freeing resources from memory.
   function onHide() as Void {
-    //System.println("onHide");
+    System.println("onHide");
+    _lowPwrMode = true;
+    _dataFields.unsubscribeStress();
   }
 
   // Terminate any active timers and prepare for slow updates (once a minute).
   function onEnterSleep() as Void {
-    //System.println("onEnterSleep");
+    System.println("onEnterSleep");
     _lowPwrMode = true;
     _dataFields.unsubscribeStress();
     //_blanked = false;
@@ -251,7 +252,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
   // The user has just looked at their watch. Timers and animations may be started here.
   function onExitSleep() as Void {
-    //System.println("onExitSleep");
+    System.println("onExitSleep");
     _lowPwrMode = false;
     _dataFields.subscribeStress();
     //WatchUi.requestUpdate();

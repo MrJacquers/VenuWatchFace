@@ -5,36 +5,41 @@ import Toybox.Complications;
 
 class DataFields {
     var battLogEnabled = false;
-    private var _currBattery;
-    private var _currStress;
-    private var _stressCompId;
+    private var _battery;
+    private var _stress;
+    private var _stressId;
 
     // https://developer.garmin.com/connect-iq/core-topics/complications/
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html
     function registerComplications() {
         if (Toybox has :Complications) {
             //System.println("registering complications");
+            _stressId = new Complications.Id(Complications.COMPLICATION_TYPE_STRESS);
             Complications.registerComplicationChangeCallback(self.method(:onComplicationChanged));
-            _stressCompId = new Complications.Id(Complications.COMPLICATION_TYPE_STRESS);
         }
     }
 
     function subscribeStress() {
-        Complications.subscribeToUpdates(_stressCompId);
+        _stress = null;
+        if (_stressId != null) {
+            Complications.subscribeToUpdates(_stressId);
+        }
     }
 
     function unsubscribeStress() {
-        _currStress = null;
-        Complications.unsubscribeFromUpdates(_stressCompId);
+        _stress = null;
+        if (_stressId != null) {
+            Complications.unsubscribeFromUpdates(_stressId);
+        }
     }
 
     function onComplicationChanged(id as Complications.Id) as Void {
         //System.println("onComplicationChanged");
         var comp = Complications.getComplication(id);
 
-        if (id == _stressCompId) {
+        if (id == _stressId) {
             //System.println("stress updated: " + comp.value);
-            _currStress = comp.value;
+            _stress = comp.value;
             return;
         }
     }
@@ -48,6 +53,7 @@ class DataFields {
         return Lang.format("$1$:$2$", [time.hour.format("%02d"), time.min.format("%02d")]);
     }
 
+    // live hr
     function getHeartRate() {
         var hr = Activity.getActivityInfo().currentHeartRate;
         if (hr != null && hr != 0 && hr != 255) {
@@ -56,6 +62,7 @@ class DataFields {
         return "--";
     }
 
+    // hr from history
     function getHeartRateHist() {
         var sample = ActivityMonitor.getHeartRateHistory(1, true).next();
         if (sample != null && sample.heartRate != null) {
@@ -67,33 +74,29 @@ class DataFields {
     function getBodyBattery() {
         // https://developer.garmin.com/connect-iq/api-docs/Toybox/SensorHistory.html
         if ((Toybox has :SensorHistory) && (SensorHistory has :getBodyBatteryHistory)) {
-            var history = SensorHistory.getBodyBatteryHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST });
-            var sample = history.next();
+            var sample = SensorHistory.getBodyBatteryHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST }).next();
             if (sample != null && sample.data != null && sample.data >= 0 && sample.data <= 100) {
                 return sample.data.format("%d") + "%";
             }
+            return "--";
         }
-        return "--";
+        return "n/a";
     }
 
     function getStress() {
-        if (_currStress != null) {
-            return _currStress + "%";
+        if (_stress != null) {
+            return _stress + "%";
         }
 
         if ((Toybox has :SensorHistory) && (SensorHistory has :getStressHistory)) {
-            //var history = SensorHistory.getStressHistory({});
-            var history = SensorHistory.getStressHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST });
-            var sample = history.next();
-            if (sample == null) {
-                return "n/a";
+            var sample = SensorHistory.getStressHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST }).next();
+            if (sample != null /* && sample.data != null && sample.data >= 0 && sample.data <= 100*/) {
+                return "[" + sample.data.format("%d") + "%" + "]";
             }
-            //if (sample != null && sample.data >= 0 && sample.data <= 100) {
-            return "[" + sample.data.format("%d") + "%" + "]";
-            //}
+            return "--"; // unavailable, e.g. watch hasn't been worn for a while
         }
 
-        return "--";
+        return "n/a"; // not available at all :(
     }
 
     function getSteps() {
@@ -101,28 +104,26 @@ class DataFields {
         return ActivityMonitor.getInfo().steps;
     }
 
-    function getTemperature() {    
+    function getTemperature() {
         if ((Toybox has :SensorHistory) && (SensorHistory has :getTemperatureHistory)) {
-            var iterator = SensorHistory.getTemperatureHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST });
-            var sample = iterator.next();
+            var sample = SensorHistory.getTemperatureHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST }).next();
             if (sample != null && sample.data != null) {
                 return sample.data.format("%d") + "°";
             }
+            return "--";
         }
-        return "--";
+        return "n/a";
     }
 
     function getBattery() {
         //System.println("getBattery");
-        var batt = System.getSystemStats().battery;
-        if (batt != _currBattery) {
-            _currBattery = batt;
-            if (battLogEnabled) {
-                var time = System.getClockTime();
-                System.println(Lang.format("Battery,$1$:$2$:$3$,$4$", [time.hour.format("%02d"), time.min.format("%02d"), time.sec.format("%02d"), _currBattery]));
-            }
+        var battery = System.getSystemStats().battery;
+        if (battLogEnabled && battery != _battery) {
+            _battery = battery;
+            var time = System.getClockTime();
+            System.println(Lang.format("Battery,$1$:$2$:$3$,$4$", [time.hour.format("%02d"), time.min.format("%02d"), time.sec.format("%02d"), battery]));
         }
-        return Lang.format("$1$%", [_currBattery.format("%d")]);
+        return Lang.format("$1$%", [battery.format("%d")]);
         //return battery.format("%.2f") + "%";
     }
 
