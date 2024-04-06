@@ -2,6 +2,7 @@ import Toybox.Lang;
 import Toybox.Application.Storage;
 
 class Settings {
+    var bgColor;
     var dateColor;
     var hrColor; // TODO: hr zone colors
     var connectColor;
@@ -22,6 +23,7 @@ class Settings {
         // https://developer.garmin.com/connect-iq/core-topics/properties-and-app-settings/
         // Set via ConnectIQ App.
         if (Toybox.Application has :Properties) {
+            bgColor = Application.Properties.getValue("BGColor").toNumberWithBase(16);
             dateColor = Application.Properties.getValue("DateColor").toNumberWithBase(16);
             hrColor = Application.Properties.getValue("HRColor").toNumberWithBase(16);
             connectColor = Application.Properties.getValue("ConnectColor").toNumberWithBase(16);            

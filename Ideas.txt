@@ -1,25 +1,10 @@
-DataFields
-----------
+Position of Data Fields + Bounding Boxes
+Analog View
+Battery Log View
 
-- Stress + option to select?
+Colors
+------
 
-Open complication on press
---------------------------
-
-https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html
-
-- HR
-- Body Battery
-- Stress
-- Steps
-- Battery
-
-Settings
---------
-
-Colors:
-
-- Background?
 - HR Zones https://developer.garmin.com/connect-iq/core-topics/quantifying-the-user/
 - Battery Zones
 

@@ -3,6 +3,9 @@
     <setting propertyKey="@Properties.AppVersion" title="@Strings.AppVersion">
         <settingConfig type="alphaNumeric" readonly="true" />
     </setting>
+    <setting propertyKey="@Properties.BGColor" title="@Strings.BGColorTitle">
+        <settingConfig type="alphaNumeric" />
+    </setting>
     <setting propertyKey="@Properties.DateColor" title="@Strings.DateColorTitle">
         <settingConfig type="alphaNumeric" />
     </setting>

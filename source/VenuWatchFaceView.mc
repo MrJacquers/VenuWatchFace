@@ -72,100 +72,89 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     //System.println("drawing");
     clearScreen(dc);
 
-    //dc.setColor(Graphics.COLOR_BLUE, 0);
-    //dc.drawLine(0, 104, 412, 312);
-    //dc.drawLine(0, 312, 412, 104);
-
     // lines for positioning
     if (_settings.showGrid) {
       drawGrid(dc);
     }
 
-    //dc.setColor(Graphics.COLOR_YELLOW, 0);
-    //dc.fillRoundedRectangle(118, 32, 182, 44, 5);
-
     // Get the date info, the strings will be localized.
     var dateInfo = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
 
-    // date
-    dc.setColor(_settings.dateColor, -1);
-    dc.drawText(212, 52, Graphics.FONT_SMALL, _dataFields.getDate(dateInfo), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // something
-    //dc.setColor(Graphics.COLOR_DK_GRAY, -1);
-    //dc.drawText(104, 108, Graphics.FONT_TINY, "xx", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-    
-    // heartrate
-    dc.setColor(_settings.hrColor, -1);
-    dc.drawText(_devCenter, 108, Graphics.FONT_TINY, _dataFields.getHeartRate(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // something else
-    //dc.setColor(Graphics.COLOR_DK_GRAY, -1);
-    //dc.drawText(312, 108, Graphics.FONT_TINY, "yy", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // connection status
-    dc.setColor(_settings.connectColor, -1);
-    var cs = System.getDeviceSettings().phoneConnected ? "B" : "";
-    dc.drawText(30, 208, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // hour
-    dc.setColor(_settings.hourColor, -1);
-    dc.drawText(200, 206, _timeFont, dateInfo.hour.format("%02d"), Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // minutes
-    dc.setColor(_settings.minuteColor, -1);
-    dc.drawText(216, 206, _timeFont, dateInfo.min.format("%02d"), Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // seconds
-    dc.setColor(_settings.secColor, -1);
-    dc.drawText(378, 148, Graphics.FONT_TINY, dateInfo.sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
-    
-    // stress
-    dc.setColor(_settings.stressColor, -1);
-    dc.drawText(104, 312, Graphics.FONT_TINY, _dataFields.getStress(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // steps
-    dc.setColor(_settings.stepsColor, -1);
-    dc.drawText(_devCenter, 312, Graphics.FONT_TINY, _dataFields.getSteps(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // temperature
-    dc.setColor(_settings.tempColor, -1);
-    dc.drawText(312, 312, Graphics.FONT_TINY, _dataFields.getTemperature(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    // battery
-    dc.setColor(_settings.battColor, -1);
-    dc.drawText(_devCenter, 376, Graphics.FONT_TINY, _dataFields.getBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-    //_dataFields.drawBoxes(dc);
-
-    // circles
-    //dc.setPenWidth(1);
-    //dc.setColor(Graphics.COLOR_DK_GRAY, 0);
-    //dc.drawCircle(_devCenter,_devCenter,204);
-
-    /*dc.setColor(_hourColor, -1);
-    var top = 90;
-    var secs = top + (360 - (dateInfo.sec * 6));
-     if (secs > 360) {
-      secs = secs - 360;
-    }
-    dc.setPenWidth(4);
-    dc.drawArc(_devCenter, _devCenter, 204, Graphics.ARC_CLOCKWISE , top, secs);*/
-
-    //drawSecDot(dc, dateInfo.sec);
-    //drawSecDot2(dc, dateInfo.sec);
+    drawDate(dc, dateInfo);
+    drawHR(dc);
+    drawConnectionStatus(dc);
+    drawHour(dc, dateInfo);
+    drawMinutes(dc, dateInfo);
+    //drawSeconds(dc, dateInfo); // TODO: remove
+    drawStress(dc);
+    drawSteps(dc);
+    drawTemperature(dc);
+    drawBattery(dc);
+    drawSecDot(dc, dateInfo.sec, 196);
+    //drawSecMarker(dc, dateInfo.sec, 204);
+    //drawBoxes(dc); // for debugging bounding boxes
 
     /*var sec = 0;
     do {
-      //drawSecDot(dc, sec, _devCenter);
-      drawSecDot2(dc, sec, _devCenter);
-      sec += 5;
+      drawSecDot(dc, sec, 196);
+      sec += 1;
     } while (sec < 60);*/
   }
 
   private function clearScreen(dc as Dc) {
-    dc.setColor(0, 0);
+    dc.setColor(0, _settings.bgColor);
     dc.clear();
+  }
+
+  function drawDate(dc, dateInfo as Gregorian.Info) {
+    dc.setColor(_settings.dateColor, -1);
+    dc.drawText(212, 52, Graphics.FONT_TINY, _dataFields.getDate(dateInfo), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+  }
+
+  function drawHR(dc) {
+    dc.setColor(_settings.hrColor, -1);
+    dc.drawText(_devCenter, 108, Graphics.FONT_TINY, _dataFields.getHeartRate(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+  }
+
+  function drawConnectionStatus(dc) {
+    dc.setColor(_settings.connectColor, -1);
+    var cs = System.getDeviceSettings().phoneConnected ? "B" : "";
+    dc.drawText(30, 208, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+  }
+
+  function drawHour(dc, dateInfo as Gregorian.Info) {
+    dc.setColor(_settings.hourColor, -1);
+    dc.drawText(200, 206, _timeFont, dateInfo.hour.format("%02d"), Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);   
+  }
+
+  function drawMinutes(dc, dateInfo as Gregorian.Info) {
+    dc.setColor(_settings.minuteColor, -1);
+    dc.drawText(216, 206, _timeFont, dateInfo.min.format("%02d"), Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+  }
+
+  function drawSeconds(dc, dateInfo as Gregorian.Info) {
+    dc.setColor(_settings.secColor, -1);
+    dc.drawText(378, 148, Graphics.FONT_TINY, dateInfo.sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
+  }
+
+  function drawStress(dc) {
+    dc.setColor(_settings.stressColor, -1);
+    dc.drawText(104, 312, Graphics.FONT_TINY, _dataFields.getStress(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+  }
+
+  function drawSteps(dc) {
+    dc.setColor(_settings.stepsColor, -1);
+    dc.drawText(_devCenter, 312, Graphics.FONT_TINY, _dataFields.getSteps(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+  }
+
+  function drawTemperature(dc) {
+    dc.setColor(_settings.tempColor, -1);
+    dc.drawText(312, 312, Graphics.FONT_TINY, _dataFields.getTemperature(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+  }
+
+  function drawBattery(dc) {
+    dc.setColor(_settings.battColor, -1);
+    dc.drawText(_devCenter, 376, Graphics.FONT_TINY, _dataFields.getBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
   }
 
   // for layout position debugging
@@ -211,26 +200,44 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     dc.drawText(x + _devCenter, y + _devCenter, Graphics.FONT_TINY, timeString, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
   }
 
-  // https://forums.garmin.com/developer/connect-iq/f/discussion/1740/better-code-needed-for-hands-on-watchface/19026
   private function drawSecDot(dc, sec, radius) {
-    var angle = (sec / 60.0) * Math.PI * 2;
-    var x = Math.sin(angle) * radius + 0.5;
-    var y = Math.cos(angle) * -radius;
+    dc.setColor(_settings.secColor, -1);
 
-    dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
-    //dc.fillCircle(x + _devCenter, y + _devCenter, 8);
-  }
+    // similar to analog sdk sample
+    //var angle = (sec / 60.0) * Math.PI * 2;
+    //var x = Math.sin(angle) * radius + 0.5;
+    //var y = Math.cos(angle) * -radius;
 
-  // https://github.com/bombsimon/garmin-seaside
-  private function drawSecDot2(dc, sec, radius) {
-    //dc.setColor(Graphics.COLOR_WHITE, -1);
+    // from https://github.com/bombsimon/garmin-seaside
     //var angle = Math.toRadians((sec * 6 + 270));
     var angle = (sec * 6 + 270) * (Math.PI / 180);
     var x = Math.cos(angle) * radius;
     var y = Math.sin(angle) * radius;
 
-    dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
-    //dc.fillCircle(x + _devCenter, y + _devCenter, 8);
+    dc.fillCircle(x + _devCenter, y + _devCenter, 8);
+    //dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
+  }
+  
+  private function drawSecMarker(dc, sec, radius) {
+    dc.setColor(Graphics.COLOR_WHITE, -1);    
+    var angle = (sec * 6 + 270) * (Math.PI / 180);
+    var x1 = Math.cos(angle) * (radius - 10);
+    var y1 = Math.sin(angle) * (radius - 10);
+    var x2 = Math.cos(angle) * radius;
+    var y2 = Math.sin(angle) * radius;
+    dc.drawLine(x1 + _devCenter, y1 + _devCenter, x2 + _devCenter, y2 + _devCenter);
+  }
+
+  function drawBoxes(dc) {
+    var width = dc.getWidth();
+    var devCenter = width / 2;
+    dc.setColor(Graphics.COLOR_ORANGE, -1);
+
+    // df 01
+    dc.drawRectangle(devCenter - 26, 90, 52, 40);
+
+    //
+    dc.drawRectangle(70, 294, 70, 40);
   }
 
   // Called when this View is removed from the screen. Save the state of this View here.
