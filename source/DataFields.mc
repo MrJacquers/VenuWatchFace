@@ -47,12 +47,7 @@ class DataFields {
         return Lang.format("$1$ $2$ $3$", [dateInfo.day_of_week, dateInfo.month, dateInfo.day]);
     }
 
-    function getTime() {
-        var time = System.getClockTime();
-        return Lang.format("$1$:$2$", [time.hour.format("%02d"), time.min.format("%02d")]);
-    }
-
-    // live hr
+    // current hr
     function getHeartRate() {
         var hr = Activity.getActivityInfo().currentHeartRate;
         if (hr != null && hr != 0 && hr != 255) {
