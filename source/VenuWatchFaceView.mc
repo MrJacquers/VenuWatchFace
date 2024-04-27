@@ -13,6 +13,7 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   private var _settings;
   private var _dataFields;
   private const _toRads = Math.PI / 180;
+  private var _digital = true; // TODO: make a setting for this
   
   function initialize() {
     System.println("view initialize");
@@ -87,20 +88,12 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     drawConnectionStatus(dc);
     drawHour(dc, dateInfo);
     drawMinutes(dc, dateInfo);
-    drawSeconds(dc, dateInfo);
-    drawStress(dc);
+    drawSeconds(dc, dateInfo.sec);
+    drawBodyBattery(dc);
     drawSteps(dc);
     drawTemperature(dc);
     drawBattery(dc);
-    //drawSecDot(dc, dateInfo.sec, 196);
-    //drawSecMarker(dc, dateInfo.sec, 204);
     //drawBoxes(dc); // for debugging bounding boxes
-
-    var sec = 0;
-    do {
-      drawSecMarker(dc, sec, 196);
-      sec += 5;
-    } while (sec < 60);
   }
 
   private function clearScreen(dc as Dc) {
@@ -121,34 +114,34 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   function drawConnectionStatus(dc) {
     dc.setColor(_settings.connectColor, -1);
     var cs = System.getDeviceSettings().phoneConnected ? "B" : "";
-    dc.drawText(30, 208, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+    dc.drawText(30, _devCenter, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
   }
 
   function drawHour(dc, dateInfo as Gregorian.Info) {
     dc.setColor(_settings.hourColor, -1);
-    // TODO: setting for digital vs analog
-    //dc.drawText(200, 206, _timeFont, dateInfo.hour.format("%02d"), Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+    
+    if (_digital) {
+      dc.drawText(200, 206, _timeFont, dateInfo.hour.format("%02d"), Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+      return;
+    }
     
     // each hour is 30° + 0.5° per minute
     var angle = (dateInfo.hour * 30 + dateInfo.min * 0.5 + 270) * _toRads;
-    //var angle = ((dateInfo.hour + dateInfo.min / 60.0) * 30 + 270) * _toRads;
     var x = Math.cos(angle) * 180; // radius
     var y = Math.sin(angle) * 180; // radius
     dc.setPenWidth(4);
     dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
-
-    //dc.setPenWidth(1);
-    //dc.setColor(0xffffff, -1);
-    //dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
   }
 
   function drawMinutes(dc, dateInfo as Gregorian.Info) {
     dc.setColor(_settings.minuteColor, -1);
-    // TODO: setting for digital vs analog
-    //dc.drawText(216, 206, _timeFont, dateInfo.min.format("%02d"), Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+    if (_digital) {
+      dc.drawText(216, 206, _timeFont, dateInfo.min.format("%02d"), Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+      return;
+    }
     
     // the minute hand moves six degrees per minute, e.g. 15 min should be 90°, 16 min should be 96°, so 15 min 30s should be 93°
-    //var angle = (dateInfo.min * 6  + 270) * _toRads; // jerky sudden motion once a minute
     var angle = (dateInfo.min * 6 + dateInfo.sec * 0.1 + 270) * _toRads; // smoother motion
     //var angle = ((dateInfo.min + dateInfo.sec / 60.0) * 6 + 270) * _toRads; // smoother motion
     var x = Math.cos(angle) * 180; // radius
@@ -157,16 +150,30 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
   }
 
-  function drawSeconds(dc, dateInfo as Gregorian.Info) {
+  function drawSeconds(dc, sec as Number) {
     dc.setColor(_settings.secColor, -1);
-    // TODO: setting for digital vs analog
-    //dc.drawText(378, 148, Graphics.FONT_TINY, dateInfo.sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
-    var angle = (dateInfo.sec * 6 + 270) * _toRads;
+
+    if (_digital) {
+      dc.drawText(374, 148, Graphics.FONT_TINY, sec.format("%02d"), Graphics.TEXT_JUSTIFY_CENTER);
+      return;
+    }
+      
+    var angle = (sec * 6 + 270) * _toRads;
     var x = Math.cos(angle) * 180; // radius
     var y = Math.sin(angle) * 180; // radius
-
     dc.setPenWidth(2);
     dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
+
+    var s = 0;
+    do {
+      drawSecMarker(dc, s, 196);
+      s += 1;
+    } while (s < 60);
+  }
+
+  function drawBodyBattery(dc) {
+    dc.setColor(_settings.bodyBattColor, -1);
+    dc.drawText(104, 312, Graphics.FONT_TINY, _dataFields.getBodyBattery(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
   }
 
   function drawStress(dc) {
@@ -251,10 +258,11 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
   }
   
   private function drawSecMarker(dc, sec, radius) {
-    dc.setColor(Graphics.COLOR_DK_GRAY, -1);    
+    dc.setColor(Graphics.COLOR_DK_GRAY, -1);
+    var len = sec % 5 == 0 ? 20 : 10;
     var angle = (sec * 6 + 270) * _toRads;
-    var x1 = Math.cos(angle) * (radius - 10);
-    var y1 = Math.sin(angle) * (radius - 10);
+    var x1 = Math.cos(angle) * (radius - len);
+    var y1 = Math.sin(angle) * (radius - len);
     var x2 = Math.cos(angle) * radius;
     var y2 = Math.sin(angle) * radius;
     dc.drawLine(x1 + _devCenter, y1 + _devCenter, x2 + _devCenter, y2 + _devCenter);
