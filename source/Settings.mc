@@ -12,10 +12,11 @@ class Settings {
     var bodyBattColor;
     var stressColor;
     var stepsColor;
-    var tempColor;
+    var caloriesColor;
     var battColor; // TODO: battery % colors
 
-    var showGrid;
+    var showGrid = false;
+    var digitalEnabled = false;
     var appAODEnabled = false;
     var battLogEnabled = false;
 
@@ -33,19 +34,20 @@ class Settings {
             bodyBattColor = Application.Properties.getValue("BodyBattColor").toNumberWithBase(16);
             stressColor = Application.Properties.getValue("StressColor").toNumberWithBase(16);
             stepsColor = Application.Properties.getValue("StepsColor").toNumberWithBase(16);
-            tempColor = Application.Properties.getValue("TempColor").toNumberWithBase(16);
+            caloriesColor = Application.Properties.getValue("CaloriesColor").toNumberWithBase(16);
             battColor = Application.Properties.getValue("BattColor").toNumberWithBase(16);
         }
 
         // On-device settings, accessible via select watch face edit menu.
         if (Toybox.Application has :Storage) {
             showGrid = getValue("GridEnabled", false);
+            digitalEnabled = getValue("DigitalEnabled", true);
             appAODEnabled = getValue("AODModeEnabled", false);
             battLogEnabled = getValue("BattLogEnabled", false);
         }
     }
 
-    function getValue(name, defaultValue) {
+    private function getValue(name, defaultValue) {
         var setting = Storage.getValue(name);
         if (setting != null) {
             return setting;

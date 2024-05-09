@@ -1,5 +1,4 @@
 Position of Data Fields + Bounding Boxes
-Analog View
 Battery Log View
 
 Colors

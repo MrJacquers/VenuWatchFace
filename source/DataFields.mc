@@ -98,15 +98,8 @@ class DataFields {
         return ActivityMonitor.getInfo().steps;
     }
 
-    function getTemperature() {
-        if ((Toybox has :SensorHistory) && (SensorHistory has :getTemperatureHistory)) {
-            var sample = SensorHistory.getTemperatureHistory({ :period => 1, :order => SensorHistory.ORDER_NEWEST_FIRST }).next();
-            if (sample != null && sample.data != null) {
-                return sample.data.format("%d") + "°";
-            }
-            return "--";
-        }
-        return "n/a";
+    function getCalories() {
+        return ActivityMonitor.getInfo().calories;
     }
 
     function getBattery() {

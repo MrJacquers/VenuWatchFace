@@ -33,7 +33,7 @@
     <setting propertyKey="@Properties.StepsColor" title="@Strings.StepsColorTitle">
         <settingConfig type="alphaNumeric" />
     </setting>
-    <setting propertyKey="@Properties.TempColor" title="@Strings.TempColorTitle">
+    <setting propertyKey="@Properties.CaloriesColor" title="@Strings.CaloriesColorTitle">
         <settingConfig type="alphaNumeric" />
     </setting>
     <setting propertyKey="@Properties.BattColor" title="@Strings.BattColorTitle">
