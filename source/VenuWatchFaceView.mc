@@ -82,13 +82,14 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     var dateInfo = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
 
     // time
+    dc.setPenWidth(4);
     drawHour(dc, dateInfo);
     drawMinutes(dc, dateInfo);
     drawSeconds(dc, dateInfo.sec);
 
     // data fields
-    drawDate(dc, dateInfo);
     drawHR(dc);
+    drawDate(dc, dateInfo);
     drawConnectionStatus(dc);
     drawBodyBattery(dc);
     drawSteps(dc);    
@@ -99,44 +100,15 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
 
   (:debug)
   private function clearScreen(dc as Dc) {
-    dc.setColor(0, _settings.bgColor);
+    dc.setColor(_settings.bgColor, _settings.bgColor);
     dc.clear();
   }
 
   (:release)
   private function clearScreen(dc as Dc) {
     // no need for this on actual device
-  }
-
-  function drawDate(dc, dateInfo as Gregorian.Info) {
-    dc.setColor(_settings.dateColor, -1);
-
-    if (_settings.digitalEnabled) {
-      dc.drawText(212, 52, Graphics.FONT_TINY, _dataFields.getDate(dateInfo), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-    } else {
-      dc.drawText(212, 80, Graphics.FONT_TINY, _dataFields.getDate(dateInfo), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-    }
-  }
-
-  function drawHR(dc) {
-    dc.setColor(_settings.hrColor, -1);
-
-    if (_settings.digitalEnabled) {
-      dc.drawText(_devCenter, 108, Graphics.FONT_TINY, _dataFields.getHeartRate(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);  
-    } else {      
-      dc.drawText(_devCenter, 135, Graphics.FONT_TINY, _dataFields.getHeartRate(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-    }
-  }
-
-  function drawConnectionStatus(dc) {
-    dc.setColor(_settings.connectColor, -1);
-    var cs = System.getDeviceSettings().phoneConnected ? "B" : "";
-
-    if (_settings.digitalEnabled) {
-      dc.drawText(30, _devCenter, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-    } else {
-      dc.drawText(50, _devCenter, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-    }
+    dc.setColor(_settings.bgColor, _settings.bgColor);
+    dc.clear();
   }
 
   function drawHour(dc, dateInfo as Gregorian.Info) {
@@ -152,7 +124,6 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     var x = Math.cos(angle) * 100; // radius
     var y = Math.sin(angle) * 100; // radius
     
-    dc.setPenWidth(4);
     dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
   }
 
@@ -170,7 +141,6 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     var x = Math.cos(angle) * 140; // radius
     var y = Math.sin(angle) * 140; // radius
 
-    dc.setPenWidth(2);
     dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
   }
 
@@ -183,10 +153,9 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     }
       
     var angle = (sec * 6 + 270) * _toRads;
-    var x = Math.cos(angle) * 170; // radius
-    var y = Math.sin(angle) * 170; // radius
+    var x = Math.cos(angle) * 165; // radius
+    var y = Math.sin(angle) * 165; // radius
 
-    dc.setPenWidth(2);
     dc.drawLine(_devCenter, _devCenter, x + _devCenter, y + _devCenter);
 
     var s = 0;
@@ -198,8 +167,39 @@ class VenuWatchFaceView extends WatchUi.WatchFace {
     dc.setColor(0, 0);
     dc.fillCircle(_devCenter, _devCenter, 5);
 
-    dc.setColor(0xFF0000, 0);
+    dc.setColor(Graphics.COLOR_DK_RED, 0);
     dc.drawCircle(_devCenter, _devCenter, 5);
+  }
+
+  function drawHR(dc) {
+    dc.setColor(_settings.hrColor, -1);
+
+    if (_settings.digitalEnabled) {
+      dc.drawText(_devCenter, 52, Graphics.FONT_TINY, _dataFields.getHeartRate(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);  
+    } else {      
+      dc.drawText(_devCenter, 80, Graphics.FONT_TINY, _dataFields.getHeartRate(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+  }
+
+  function drawDate(dc, dateInfo as Gregorian.Info) {
+    dc.setColor(_settings.dateColor, -1);
+
+    if (_settings.digitalEnabled) {
+      dc.drawText(212, 108, Graphics.FONT_TINY, _dataFields.getDate(dateInfo), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    } else {
+      dc.drawText(212, 135, Graphics.FONT_TINY, _dataFields.getDate(dateInfo), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+  }
+
+  function drawConnectionStatus(dc) {
+    dc.setColor(_settings.connectColor, -1);
+    var cs = System.getDeviceSettings().phoneConnected ? "B" : "";
+
+    if (_settings.digitalEnabled) {
+      dc.drawText(30, _devCenter, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+    } else {
+      dc.drawText(50, _devCenter, Graphics.FONT_TINY, cs, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
   }
 
   function drawBodyBattery(dc) {
